@@ -40,9 +40,16 @@ Ultrasonic UltraSonicSensor(usPin);
 int potpin = A1; // analog pin used to connect the potentiometer
 int val; // variable to read the value from the analog pin
 
+// configure OLED screen
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C OLED(U8G2_R0, SCL, U8X8_PIN_NONE);
+
 void setup() {
   myservo.attach(servoPin); // attaches the servo on pin 6 to the servo object
   Serial.begin(9600);
+
+  OLED.begin();
+  OLED.setFont(u8g2_font_6x12_tf);
+  
 }
 
 void loop() {
@@ -54,7 +61,15 @@ void loop() {
 
   //val = analogRead(potpin);         // reads the value of the potentiometer
   val = map(RangeInCentimeters, 0, 700, 0, 300);  // scale it to use it with the servo (val)
-  myservo.write(val);               // sets the servo postion according to 
-  delay(100);                    // waits for the servo to process and get there
+  myservo.write(val);              // sets the servo postion according to 
+
+  OLED.drawStr(0, 10, "------------------------ ");
+  OLED.drawStr(0, 20, "------------------------");
+  OLED.drawStr(0, 30, RangeInCentimeters);
+  OLED.drawStr(0, 40, "------------------------");
+  OLED.drawStr(0, 50, "------------------------");
+  OLED.drawStr(0, 60, "------------------------");
+  OLED.nextPage();
+  delay(200);                    // waits for the servo to process and get there
 
 }
