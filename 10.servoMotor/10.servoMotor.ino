@@ -53,34 +53,35 @@ void setup() {
 }
 
 void loop() {
- 
-  static String inputString = "";
+
   static bool stringComplete = false;
-
-  // Read serial data and build up a string until newline
- while (Serial.available()) {
-    char inChar = (char)Serial.read();
-    if (inChar == '\n') {
-      stringComplete = true;
-      break;
-    } else if (inChar != '\r') {
-      inputString += inChar;
-    }
-  }
-
 
   unsigned long RangeInCentimeters;
   RangeInCentimeters = UltraSonicSensor.distanceRead(); // two measurements 
   Serial.print(RangeInCentimeters); // 0~400cm
   Serial.println(" cm");
 
+  String inputString = RangeInCentimeters;
+  String cleanString = "";
+
+  for (unsigned int i = 0; i < inputString.length(); i++) {
+    char inChar = inputString[i];
+    if (inChar != '\n' && inChar != '\r') {
+      cleanString += inChar;
+    }
+    if(inChar == '\n'){
+      cleanString += '_';
+    }
+  }
+  
+  
   //val = analogRead(potpin);         // reads the value of the potentiometer
   val = map(RangeInCentimeters, 0, 700, 0, 300);  // scale it to use it with the servo (val)
   myservo.write(val);              // sets the servo postion according to
 
- 
+
   OLED.clearDisplay();
-  OLED.drawStr(0, 10, inChar);
+  OLED.drawStr(0, 10, );
   OLED.nextPage();
  delay(300);                   
   
