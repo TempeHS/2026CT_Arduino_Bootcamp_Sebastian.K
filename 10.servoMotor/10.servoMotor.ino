@@ -33,6 +33,7 @@
 
 unsigned static int servoPin = 6;
 unsigned static int usPin = 5;
+unsigned static int redLED = 4;
 
 Servo myservo; // create servo object to control a servo
 Ultrasonic UltraSonicSensor(usPin);
@@ -40,49 +41,45 @@ Ultrasonic UltraSonicSensor(usPin);
 int potpin = A1; // analog pin used to connect the potentiometer
 int val; // variable to read the value from the analog pin
 
+bool onSTATE = false;
+
 // configure OLED screen
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C OLED(U8G2_R0, SCL, U8X8_PIN_NONE);
 
 void setup() {
   myservo.attach(servoPin); // attaches the servo on pin 6 to the servo object
   Serial.begin(9600);
-
+  Serial.println("baud = 9600");
+  Serial.println("------------------");
   OLED.begin();
-  OLED.setFont(u8g2_font_6x12_tf);
-  
+  pinMode(redLED, OUTPUT);
 }
 
 void loop() {
-
-  static bool stringComplete = false;
-
-  unsigned long RangeInCentimeters;
-  RangeInCentimeters = UltraSonicSensor.distanceRead(); // two measurements 
-  Serial.print(RangeInCentimeters); // 0~400cm
-  Serial.println(" cm");
-
-  String inputString = RangeInCentimeters;
-  String cleanString = "";
-
-  for (unsigned int i = 0; i < inputString.length(); i++) {
-    char inChar = inputString[i];
-    if (inChar != '\n' && inChar != '\r') {
-      cleanString += inChar;
-    }
-    if(inChar == '\n'){
-      cleanString += '_';
-    }
-  }
   
-  
-  //val = analogRead(potpin);         // reads the value of the potentiometer
-  val = map(RangeInCentimeters, 0, 700, 0, 300);  // scale it to use it with the servo (val)
-  myservo.write(val);              // sets the servo postion according to
-
-
+  unsigned long range_in_cm;
+  range_in_cm = UltraSonicSensor.distanceRead();
+  String distanceString = String(range_in_cm);
+  //String servoString = String(range_in_cm);
+  //set servo angle relative to ultrasonic sensor 1m = 180 3cm = 0.0000000000000
+  OLED.setFont(u8g2_font_6x12_tf);
   OLED.clearDisplay();
-  OLED.drawStr(0, 10, );
+  OLED.drawStr(0, 10, distanceString.c_str());
+  //OLED.drawStr(0, 20, servoString.c_str());
   OLED.nextPage();
- delay(300);                   
+
+  int servoAngle = range_in_cm;
+  map(servoAngle, 0, 1083, 0, 180);
+  myservo.write(servoAngle);
+
+  if (range_in_cm <= 50) {
+    digitalWrite(redLED, !onSTATE);
+  } else {
+    digitalWrite(redLED, onSTATE);
+  }
+
+  Serial.print(range_in_cm);
+  Serial.println(" cm");            
   
+  delay(100);
 }
