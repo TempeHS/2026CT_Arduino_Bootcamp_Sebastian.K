@@ -21,46 +21,31 @@
   Schematic:
       
 */
+// Includes for the OLED screen
+#include <Arduino.h>
+#include <U8g2lib.h>
+#include <SPI.h>
+#include <Wire.h>
 
-int LED_PIN = 5;
-bool LED_PIN_State = HIGH;
-int randomNum09;
+//include for sensors
+#include "Arduino_SensorKit.h"
+
+// configure OLED screen
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C OLED(U8G2_R0, SCL, U8X8_PIN_NONE);
+
+static unsigned int buzzerPin = 5;
 
 void setup() {
-  // initialize digital pin with built in LED as output.
-  pinMode(LED_PIN, OUTPUT);
-  // inititise the serial monitor for debugging and output
-  Serial.begin(9600); 
-  randomSeed(analogRead(0));
+Serial.begin(9600);
+Serial.println("baud = 9600");
+Serial.println("------------------");
+OLED.begin();
+Pressure.begin();
 }
 
 void loop() {
-  TogglePin(); //Call the TogglePin function
-  digitalWrite(LED_PIN, LED_PIN_State); //Set PIN state
-  DebugLED(); // Write PIN state to the serial monitor for debugging
-  MyDelayFunction(); //Call the MyDelayFunction
-
-  generateRandomNumber();
-  Serial.println(randomNum09);
-  // take through to Serial.println(generateRandomNumber(0, 9)); and back 1 step
-
-}
-
-// A function that waits for a second (1000 milliseconds)
-void MyDelayFunction() {
-  delay(1000); 
-}
-
-// A Function that toggles a bool value true to false or false to true 
-void TogglePin() {
-  LED_PIN_State = !LED_PIN_State; 
-}
-
-void DebugLED() {
-  Serial.println("The LED connected to PIN " + String(LED_PIN) + " is " + String(LED_PIN_State));     // Print LED status to serial monitor
-}
-
-void generateRandomNumber () {
-  randomNum09 = random(0, 9);
+  OLEDScreen();
+  PressureSensor();
+  delay(200);
 }
 
